@@ -9,6 +9,13 @@ password = 'YourStrongPassw0rd'
 # Create the connection string
 conn_str = f'DRIVER={{ODBC Driver 17 for SQL Server}};SERVER={server};DATABASE={database};UID={username};PWD={password}'
 
+
+drivers = pyodbc.drivers()
+print("Available ODBC drivers:")
+for driver in drivers:
+    print(driver)
+
+
 try:
     # Establish the connection
     conn = pyodbc.connect(conn_str)
