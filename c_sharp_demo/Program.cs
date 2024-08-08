@@ -1,4 +1,5 @@
-﻿using System;
+﻿// Program.cs
+using System;
 
 class Program
 {
@@ -7,8 +8,5 @@ class Program
         Console.WriteLine("Starting SQL Server operations...");
         
         SqlServerOperations.RunDatabaseOperations();
-        
-        Console.WriteLine("\nPress any key to exit...");
-        Console.ReadKey();
     }
 }

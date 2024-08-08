@@ -1,68 +1,79 @@
+// SqlServerOperations.cs
 using System;
 using System.Data.SqlClient;
 
 public class SqlServerOperations
 {
+    private static string connectionString = "Server=localhost,1433;Database=SampleDB;User Id=sa;Password=YourStrongPassw0rd;";
+
     public static void RunDatabaseOperations()
     {
-        string connectionString = "Server=localhost,1433;Database=master;User Id=sa;Password=YourStrongPassw0rd;";
+        Console.WriteLine("Welcome to the SQL query prompt. Type 'exit' to quit.");
 
+        while (true)
+        {
+            Console.Write("Enter your SQL query: ");
+            string query = Console.ReadLine();
+
+            if (query.ToLower() == "exit")
+                break;
+
+            ExecuteQuery(query);
+            Console.WriteLine();
+        }
+
+        Console.WriteLine("Goodbye!");
+    }
+
+    private static void ExecuteQuery(string query)
+    {
         try
         {
             using (SqlConnection connection = new SqlConnection(connectionString))
             {
                 connection.Open();
-                Console.WriteLine("Connected to SQL Server.");
-
-                // Create table
-                string createTableQuery = @"
-                IF NOT EXISTS (SELECT * FROM sysobjects WHERE name='Employees' AND xtype='U')
-                CREATE TABLE Employees (
-                    ID INT PRIMARY KEY IDENTITY(1,1),
-                    Name NVARCHAR(100),
-                    Department NVARCHAR(50),
-                    Salary DECIMAL(10, 2)
-                )";
-
-                using (SqlCommand command = new SqlCommand(createTableQuery, connection))
+                using (SqlCommand command = new SqlCommand(query, connection))
                 {
-                    command.ExecuteNonQuery();
-                    Console.WriteLine("Table 'Employees' created or already exists.");
-                }
-
-                // Insert data
-                string insertDataQuery = @"
-                INSERT INTO Employees (Name, Department, Salary)
-                VALUES 
-                ('John Doe', 'IT', 75000.00),
-                ('Jane Smith', 'HR', 65000.00),
-                ('Mike Johnson', 'Sales', 80000.00)";
-
-                using (SqlCommand command = new SqlCommand(insertDataQuery, connection))
-                {
-                    int rowsAffected = command.ExecuteNonQuery();
-                    Console.WriteLine($"{rowsAffected} row(s) inserted.");
-                }
-
-                // Select and display data
-                string selectDataQuery = "SELECT * FROM Employees";
-
-                using (SqlCommand command = new SqlCommand(selectDataQuery, connection))
-                {
-                    using (SqlDataReader reader = command.ExecuteReader())
+                    if (query.Trim().ToUpper().StartsWith("SELECT"))
                     {
-                        Console.WriteLine("\nEmployees:");
-                        while (reader.Read())
+                        using (SqlDataReader reader = command.ExecuteReader())
                         {
-                            Console.WriteLine($"ID: {reader["ID"]}, Name: {reader["Name"]}, Department: {reader["Department"]}, Salary: ${reader["Salary"]:F2}");
+                            if (!reader.HasRows)
+                            {
+                                Console.WriteLine("No results found.");
+                                return;
+                            }
+
+                            // Print column names
+                            for (int i = 0; i < reader.FieldCount; i++)
+                            {
+                                Console.Write(reader.GetName(i) + " | ");
+                            }
+                            Console.WriteLine();
+                            Console.WriteLine(new string('-', 50));
+
+                            // Print rows
+                            while (reader.Read())
+                            {
+                                for (int i = 0; i < reader.FieldCount; i++)
+                                {
+                                    Console.Write(reader[i] + " | ");
+                                }
+                                Console.WriteLine();
+                            }
                         }
+                    }
+                    else
+                    {
+                        int rowsAffected = command.ExecuteNonQuery();
+                        Console.WriteLine($"Query executed successfully. Rows affected: {rowsAffected}");
                     }
                 }
             }
         }
-        catch (Exception e)
+        catch (Exception ex)
         {
-            Console.WriteLine($"Error: {e.Message}");
+            Console.WriteLine($"Error executing query: {ex.Message}");
         }
     }
 }
