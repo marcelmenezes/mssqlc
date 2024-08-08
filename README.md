@@ -1,7 +1,15 @@
+MSSQL
+```
+docker stop sql_server_container
+docker rm sql_server_container
+docker-compose up -d
+
+```
+
+
 Python
 ```
 pip install -r requirements.txt
-docker-compose up -d
 python create.py
 ```
 

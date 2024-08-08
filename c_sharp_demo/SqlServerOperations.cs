@@ -4,7 +4,7 @@ using System.Data.SqlClient;
 
 public class SqlServerOperations
 {
-    private static string connectionString = "Server=localhost,1433;Database=SampleDB;User Id=sa;Password=YourStrongPassw0rd;";
+    private static readonly string connectionString = "Server=localhost,1433;Database=SampleDB;User Id=sa;Password=YourStrongPassw0rd;";
 
     public static void RunDatabaseOperations()
     {
@@ -13,7 +13,13 @@ public class SqlServerOperations
         while (true)
         {
             Console.Write("Enter your SQL query: ");
-            string query = Console.ReadLine();
+            string? query = Console.ReadLine();
+
+            if (string.IsNullOrWhiteSpace(query))
+            {
+                Console.WriteLine("Query cannot be empty. Please try again.");
+                continue;
+            }
 
             if (query.ToLower() == "exit")
                 break;
